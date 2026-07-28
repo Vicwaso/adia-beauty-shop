@@ -122,7 +122,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 USE_CLOUDINARY = os.environ.get("USE_CLOUDINARY", "False") == "True"
 if USE_CLOUDINARY:
     INSTALLED_APPS += ["cloudinary_storage", "cloudinary"]
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    # Django 5's STORAGES dict and the legacy DEFAULT_FILE_STORAGE setting
+    # are mutually exclusive — since whitenoise already needs us on the new
+    # STORAGES format for static files, media storage is configured the same
+    # way here rather than via DEFAULT_FILE_STORAGE.
+    STORAGES["default"] = {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"}
     CLOUDINARY_STORAGE = {
         "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
         "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
